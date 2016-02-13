@@ -2,6 +2,7 @@
 
 from ABE_ADCPi import ADCPi
 from ABE_helpers import ABEHelpers
+import sqlite3
 import datetime
 import time
 
@@ -20,16 +21,17 @@ this value if you have changed the address selection jumpers
 Sample rate can be 12,14, 16 or 18
 """
 
-
+db_name = 'measurements.db'
 i2c_helper = ABEHelpers()
 bus = i2c_helper.get_smbus()
 adc = ADCPi(bus, 0x68, 0x69, 18)
 
-
-def writetofile(filename, texttowrtite):
-    f = open(filename, 'a')
-    f.write(str(datetime.datetime.now()) + ";" + texttowrtite)
-    f.closed
+def writetodb(temperature, moisture):
+    conn = sqlite3.connect(db_name)
+    c = conn.cursor()
+    c.execute("INSERT INTO measurements VALUES ('" + str(datetime.datetime.now()) + "','" + temperature + "','" + moisture + "')")
+    conn.commit()
+    conn.close()
 
 while (True):
     temp = 0
