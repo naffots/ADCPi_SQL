@@ -46,5 +46,4 @@ while (True):
     temp = temp / 60
     moisture =  moisture / 60
 
-    writetofile('temp.csv', "%02f\n" % temp)
-    writetofile('moisture.csv', "%02f\n" % moisture)
+    writetodb("%02f" % temp, "%02f" % moisture)
