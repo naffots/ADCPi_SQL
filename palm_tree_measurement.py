@@ -29,8 +29,12 @@ adc = ADCPi(bus, 0x68, 0x69, 18)
 def writetodb(temperature, moisture):
     conn = sqlite3.connect(db_name)
     c = conn.cursor()
-    c.execute("INSERT INTO measurements VALUES ('" + str(datetime.datetime.now()) + "','" + temperature + "','" + moisture + "')")
-    conn.commit()
+    try:
+        c.execute("INSERT INTO measurements VALUES ('" + str(datetime.datetime.now()) + "','" + temperature + "','" + moisture + "')")
+        conn.commit()
+    except sqlite3.OperationalError:
+        print("Failed to commit to database!")
+    
     conn.close()
 
 while (True):
@@ -41,7 +45,7 @@ while (True):
         # read from adc channels and write to the log file
         temp = temp + (adc.read_voltage(1) - 0.5) * 100
         moisture = moisture + adc.read_voltage(2)
-        time.sleep(1)
+        time.sleep(0.6)
 
     temp = temp / 60
     moisture =  moisture / 60
