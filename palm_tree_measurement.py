@@ -67,7 +67,11 @@ def main():
             moisture = moisture + adc.read_voltage(2)
             time.sleep(0.6)
 
+        # Average temp
         temp = temp / 60
+        # Correct temp
+        temp = temp - 1.2
+	
         moisture =  moisture / 60
         print("temp,moisture")
         print(temp)
