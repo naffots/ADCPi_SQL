@@ -29,7 +29,7 @@ def createdb():
     conn = sqlite3.connect(db_name)
     c = conn.cursor()
     try:
-        c.execute("CREATE TABLE 'measurements' ('date' TEXT NOT NULL, 'temperature' TEXT NOT NULL, 'moisture' TEXT NOT NULL)")
+        c.execute("CREATE TABLE 'measurements' ('date' TEXT NOT NULL, 'temperature' TEXT NOT NULL, 'light' TEXT NOT NULL, 'moisture' TEXT NOT NULL)")
         conn.commit()
     except sqlite3.OperationalError:
         print("Failed to create database!")
@@ -37,11 +37,11 @@ def createdb():
     conn.close()
 
 
-def writetodb(temperature, moisture):
+def writetodb(temperature, light, moisture):
     conn = sqlite3.connect(db_name)
     c = conn.cursor()
     try:
-        c.execute("INSERT INTO measurements VALUES ('" + str(datetime.datetime.now()) + "','" + temperature + "','" + moisture + "')")
+        c.execute("INSERT INTO measurements VALUES ('" + str(datetime.datetime.now()) + "','" + temperature + "','" + light + "','" + moisture + "')")
         conn.commit()
     except sqlite3.OperationalError:
         print("Failed to commit to database!")
@@ -59,24 +59,32 @@ def main():
  
     while (True):
         temp = 0
+        light = 0
         moisture = 0
 
         for x in range(0, 60):
             # read from adc channels and write to the log file
             temp = temp + (adc.read_voltage(1) - 0.5) * 100
-            moisture = moisture + adc.read_voltage(2)
-            time.sleep(0.6)
+            light = light + adc.read_voltage(2)
+            moisture = moisture + adc.read_voltage(3)
+            time.sleep(0.4)
 
         # Average temp
         temp = temp / 60
         # Correct temp
         temp = temp - 1.2
 	
+        # Average light
+        light = light / 60
+
+        # Average moisture
         moisture =  moisture / 60
-        print("temp,moisture")
+
+        print("temp,light,moisture")
         print(temp)
+        print(light)
         print(moisture)
-        writetodb("%02f" % temp, "%02f" % moisture)
+        writetodb("%02f" % temp, "%02f" % light, "%02f" % moisture)
 
 if __name__ == "__main__":
     sys.exit(main())
